@@ -15,7 +15,7 @@ The build ([scripts/build.js](scripts/build.js)) writes:
 - `event/<id>.ics`: one file per event, for "add to calendar".
 - `staff/index.html`, `api/calendar-staff.json`, `staff/calendar.ics` and `staff/feeds/…`: the staff view (see below).
 
-The build also reads SOCS's staff page (`calendar.mayfieldgirls.org/staff/week.aspx`) to get the SOCS ID for every category and sport. These IDs are used to build SOCS feed links for any mix of categories and to find the staff-only events.
+The build also reads SOCS's staff page (`calendar.misocs.com/staff/week.aspx?ID=3405`) to get the SOCS ID for every category and sport. These IDs are used to build SOCS feed links for any mix of categories and to find the staff-only events.
 
 ## Features
 
@@ -59,7 +59,7 @@ Note that GitHub pauses scheduled workflows in a public repository after 60 days
 | `PUBLIC_URL` | set by the workflow | Site address used in subscription feeds and share links |
 | `FEED_URL` | SOCS full feed for ID 3405 | Source iCal feed |
 | `FEED_FILE` | (none) | Build from a local `.ics` file instead of fetching |
-| `STAFF_PAGE_URL` | SOCS `/staff/week.aspx` | Page the category IDs and staff-only categories are read from |
+| `STAFF_PAGE_URL` | SOCS `calendar.misocs.com/staff/week.aspx?ID=3405` | Page the category IDs and staff-only categories are read from |
 | `CALENDAR_NAME` | `Mayfield School` | Name shown in subscribers' calendar apps |
 
 ## Customising

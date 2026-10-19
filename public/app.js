@@ -568,7 +568,7 @@ async function init() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     S.data = await res.json();
   } catch {
-    $('#view').innerHTML = '<div class="empty-state"><h3>The calendar couldn’t be loaded</h3><p>Please try again in a moment, or use the <a href="https://calendar.mayfieldgirls.org/week.aspx?ID=3405">original school calendar</a>.</p></div>';
+    $('#view').innerHTML = '<div class="empty-state"><h3>The calendar couldn’t be loaded</h3><p>Please try again in a moment, or use the <a href="https://calendar.misocs.com/week.aspx?ID=3405">original school calendar</a>.</p></div>';
     return;
   }
   const { categories, groups, presets, defaultPreset, feedPrefix } = S.data;

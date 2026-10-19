@@ -22,12 +22,14 @@ import { presetCats, makeMatcher, describeFilter, feedPath } from '../public/fil
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'dist');
+// SOCS's own hostnames, not calendar.mayfieldgirls.org, so the build (and the
+// SOCS feed links it gives out) keep working if that name is pointed at this site.
 const FEED_URL = process.env.FEED_URL ||
-  'https://calendar.mayfieldgirls.org/CalendarSync.ashx?Cal=Mayfield%20School%20Calendar&A=1&ID=3405';
+  'https://calsync-website.socscms.com/calendarsync.ashx?Cal=Mayfield%20School%20Calendar&A=1&ID=3405';
 // The same feed without "all events"; category filters are appended to it.
 const SOCS_BASE = FEED_URL.replace(/&A=1\b/, '');
 // SOCS's staff page lists every category with its id, including the staff-only ones (starred).
-const STAFF_PAGE_URL = process.env.STAFF_PAGE_URL || 'https://calendar.mayfieldgirls.org/staff/week.aspx';
+const STAFF_PAGE_URL = process.env.STAFF_PAGE_URL || 'https://calendar.misocs.com/staff/week.aspx?ID=3405';
 const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/$/, '');
 const CALENDAR_NAME = process.env.CALENDAR_NAME || 'Mayfield School';
 const YEARS = [7, 8, 9, 10, 11, 12, 13];
