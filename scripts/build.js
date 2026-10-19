@@ -116,6 +116,10 @@ async function writeView(list, { staff }) {
   // Subscription feeds. Each is named by feedPath() so the browser links to the right one.
   const feed = (evs, title) => buildIcs(evs, { name: title, baseUrl });
   await write(`${prefix}calendar.ics`, feed(list, name));
+  // Parents who subscribed through SOCS have webcal://calendar.mayfieldgirls.org/CalendarSync.ashx?...
+  // saved. If that name points here, Pages serves this file and ignores the query string,
+  // so every old subscription gets the full public calendar. SOCS's redirect uses the lower-case name.
+  if (!staff) for (const old of ['CalendarSync.ashx', 'calendarsync.ashx']) await write(old, feed(list, name));
   const filters = [
     ...PRESETS.flatMap((p) => [undefined, ...YEARS].map((y) => ({ cats: presetCats(p, meta.categories), years: new Set(y ? [y] : []), q: '' }))),
     ...meta.categories.map((c) => ({ cats: new Set([c.slug]), years: new Set(), q: '' })),

@@ -13,6 +13,7 @@ The build ([scripts/build.js](scripts/build.js)) writes:
 - `feeds/<preset>.ics` and `feeds/<preset>-y<7–13>.ics`: one feed per audience (Parents, Prospective families, Pupils, Staff), alone or with one year group.
 - `feeds/cat-<category>.ics`: one feed per category.
 - `event/<id>.ics`: one file per event, for "add to calendar".
+- `CalendarSync.ashx` and `calendarsync.ashx`: copies of `calendar.ics` under SOCS's feed name. If calendar.mayfieldgirls.org is pointed at this site, parents who subscribed through SOCS (`webcal://calendar.mayfieldgirls.org/CalendarSync.ashx?…`) keep getting updates. Pages ignores the query string, so subscriptions that were filtered in SOCS get the full public calendar.
 - `staff/index.html`, `api/calendar-staff.json`, `staff/calendar.ics` and `staff/feeds/…`: the staff view (see below).
 
 The build also reads SOCS's staff page (`calendar.misocs.com/staff/week.aspx?ID=3405`) to get the SOCS ID for every category and sport. These IDs are used to build SOCS feed links for any mix of categories and to find the staff-only events.

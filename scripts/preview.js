@@ -8,7 +8,7 @@ const DIST = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'dist
 const PORT = Number(process.env.PORT || 8787);
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json', '.ics': 'text/calendar; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2',
+  '.json': 'application/json', '.ics': 'text/calendar; charset=utf-8', '.ashx': 'text/calendar; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2',
 };
 
 http.createServer(async (req, res) => {
