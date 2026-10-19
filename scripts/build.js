@@ -9,14 +9,14 @@
 // address, used in subscription feeds and share links. The Pages workflow sets it.
 //
 // There are two views: the public one at / and a staff one at /staff/ that adds
-// the staff-only categories. SOCS leaves those categories off events in its
-// public feed, but its feed URL filtered to one of them (C1=<id>) returns
-// exactly the events tagged with it, so each staff event is tagged that way.
+// the staff-only categories. SOCS's feed leaves out staff-only events (and the
+// staff categories on events that are also public), so they come from the JSON
+// that SOCS's own /staff page loads. Its daily co-curricular sessions are left out.
 
 import { readFile, writeFile, mkdir, rm, cp } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseIcs, normaliseEvent, buildIcs } from '../lib/ics.js';
+import { parseIcs, normaliseEvent, normaliseSocsRow, buildIcs } from '../lib/ics.js';
 import { GROUPS, PRESETS, DEFAULT_PRESET, buildCategoryMeta } from '../lib/categories.js';
 import { presetCats, makeMatcher, describeFilter, feedPath } from '../public/filter.js';
 
@@ -30,12 +30,14 @@ const FEED_URL = process.env.FEED_URL ||
 const SOCS_BASE = FEED_URL.replace(/&A=1\b/, '');
 // SOCS's staff page lists every category with its id, including the staff-only ones (starred).
 const STAFF_PAGE_URL = process.env.STAFF_PAGE_URL || 'https://calendar.misocs.com/staff/week.aspx?ID=3405';
+// The staff page's event data; it only answers requests that name the staff page as their Referer.
+const STAFF_EVENTS_URL = process.env.STAFF_EVENTS_URL || 'https://calendar.misocs.com/staff/CalendarEventHandler.ashx?V=2&ID=3405';
 const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/$/, '');
 const CALENDAR_NAME = process.env.CALENDAR_NAME || 'Mayfield School';
 const YEARS = [7, 8, 9, 10, 11, 12, 13];
 
-async function get(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'MayfieldCalendar/1.0' }, signal: AbortSignal.timeout(60_000) });
+async function get(url, headers = {}) {
+  const res = await fetch(url, { headers: { 'User-Agent': 'MayfieldCalendar/1.0', ...headers }, signal: AbortSignal.timeout(90_000) });
   if (!res.ok) throw new Error(`${url} returned HTTP ${res.status}`);
   return res.text();
 }
@@ -62,7 +64,16 @@ async function socsCategories() {
 const text = process.env.FEED_FILE ? await readFile(process.env.FEED_FILE, 'utf8') : await get(FEED_URL);
 // Fail the build rather than publish an empty calendar; Pages keeps the last good deploy.
 if (!text.includes('BEGIN:VCALENDAR')) throw new Error('feed is not an iCalendar file');
-const events = toEvents(text).sort(byStart);
+const events = [];
+const idByOrig = new Map(); // SOCS's own event number (in the feed's UID) -> our event id
+for (const raw of parseIcs(text)) {
+  const ev = normaliseEvent(raw);
+  if (!ev) continue;
+  events.push(ev);
+  const orig = /-(\d+)@SOCS$/.exec(raw.UID?.value || '')?.[1];
+  if (orig) idByOrig.set(orig, ev.id);
+}
+events.sort(byStart);
 if (!events.length) throw new Error('feed has no events');
 
 let socs = new Map();
@@ -71,12 +82,34 @@ if (!process.env.FEED_FILE) {
   // If SOCS changes its page, keep publishing without staff categories rather than freezing the calendar.
   try { socs = await socsCategories(); } catch (err) { console.log(`::warning::Staff categories skipped: ${err.message}`); }
   const byId = new Map(staffEvents.map((ev) => [ev.id, ev]));
-  for (const [name, { param, staff }] of socs) {
-    if (!staff) continue;
-    for (const ev of toEvents(await get(`${SOCS_BASE}&FT=OR&${param}&ST=0`))) {
-      const known = byId.get(ev.id);
-      if (known) { if (!known.cats.includes(name)) known.cats.push(name); }
-      else { ev.cats.push(name); byId.set(ev.id, ev); staffEvents.push(ev); }
+  const tag = (ev, name) => { if (!ev.cats.includes(name)) ev.cats.push(name); };
+  try {
+    // "sCal17633" / "sid-15" in a row's CalIDs -> category name.
+    const nameOf = new Map([...socs].map(([name, { param }]) => [param.replace(/^C1=/, 'sCal').replace(/^sid=/, 'sid-'), name]));
+    const staffNames = new Set([...socs].filter(([, v]) => v.staff).map(([name]) => name));
+    const day = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+    const rows = JSON.parse(await get(`${STAFF_EVENTS_URL}&FD=${day(-365)}&TD=${day(730)}`, { Referer: STAFF_PAGE_URL }));
+    let added = 0;
+    for (const row of rows) {
+      const names = String(row.CalIDs || '').split(/\s+/).map((c) => nameOf.get(c)).filter(Boolean);
+      const staffOnes = names.filter((n) => staffNames.has(n));
+      if (!staffOnes.length) continue; // public events are already in the feed; co-curricular sessions stay out
+      const known = byId.get(idByOrig.get(String(row.OrigEventID)));
+      if (known) { staffOnes.forEach((n) => tag(known, n)); continue; }
+      const ev = normaliseSocsRow(row, names);
+      if (ev && !byId.has(ev.id)) { byId.set(ev.id, ev); staffEvents.push(ev); added++; }
+    }
+    console.log(`Staff page: ${added} staff-only events added.`);
+  } catch (err) {
+    // Fall back to SOCS's feed filtered to each staff category, which only has the staff events that are also public.
+    console.log(`::warning::Staff page events unavailable (${err.message}); using the feed's staff categories only.`);
+    for (const [name, { param, staff }] of socs) {
+      if (!staff) continue;
+      for (const ev of toEvents(await get(`${SOCS_BASE}&FT=OR&${param}&ST=0`))) {
+        const known = byId.get(ev.id);
+        if (known) tag(known, name);
+        else { ev.cats.push(name); byId.set(ev.id, ev); staffEvents.push(ev); }
+      }
     }
   }
   staffEvents.sort(byStart);

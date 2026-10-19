@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseIcs, normaliseEvent, buildIcs, extractYears } from '../lib/ics.js';
+import { parseIcs, normaliseEvent, normaliseSocsRow, buildIcs, extractYears } from '../lib/ics.js';
 import { buildCategoryMeta, GROUPS, PRESETS, DEFAULT_PRESET } from '../lib/categories.js';
 import { parseFilter, encodeFilter, makeMatcher, feedPath, socsFeed } from '../public/filter.js';
 
@@ -147,4 +147,15 @@ test('ECA sessions move from Trips to Co-curricular', () => {
   assert.deepEqual(ev('ECA Drama', 'Trips, Dance Drama & Music').cats, ['Co-curricular', 'Dance Drama & Music']);
   assert.deepEqual(ev('Geography Field Trip', 'Trips').cats, ['Trips']);
   assert.deepEqual(ev('Decathlon visit', 'Trips').cats, ['Trips']);
+});
+
+test('rows from SOCS staff page data become events', () => {
+  const timed = normaliseSocsRow({ OrigEventID: '3561876', StartDate: '24 Sep 2026', EndDate: '24 Sep 2026', StartTime: '11:00', EndTime: '14:00', Venue: 'The Space', Title: 'F and GP Governors Meeting' }, ['Governor Meetings']);
+  assert.deepEqual(timed, { id: 's3561876', title: 'F and GP Governors Meeting', s: '2026-09-24', e: '2026-09-24', st: '11:00', et: '14:00', allDay: false, location: 'The Space', cats: ['Governor Meetings'], years: [], url: null });
+  // EndDate is the last day, so a Thursday-Friday inset is two days.
+  const inset = normaliseSocsRow({ OrigEventID: '1', StartDate: '3 Sep 2026', EndDate: '4 Sep 2026', StartTime: 'All Day', EndTime: '00:00', Venue: '', Title: 'Staff Inset Day' }, ['Staff Events']);
+  assert.deepEqual([inset.s, inset.e, inset.allDay, inset.st, inset.et, inset.location], ['2026-09-03', '2026-09-04', true, null, null, null]);
+  const noEnd = normaliseSocsRow({ OrigEventID: '2', StartDate: '5 Oct 2026', EndDate: '5 Oct 2026', StartTime: '14:00', EndTime: '', Title: 'Y11 Autumn Report &amp; Grade Card' }, ['Report Deadlines']);
+  assert.deepEqual([noEnd.et, noEnd.title, noEnd.years], [null, 'Y11 Autumn Report & Grade Card', [11]]);
+  assert.equal(normaliseSocsRow({ OrigEventID: '3', StartDate: 'soon', Title: 'x' }, []), null);
 });
