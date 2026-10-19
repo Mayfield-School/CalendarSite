@@ -35,6 +35,7 @@ const ICON = {
 const S = {
   data: null, meta: null, byId: new Map(), catByName: new Map(), catBySlug: new Map(),
   view: 'month', date: todayKey(), selected: null, listDays: 60, openEvent: null,
+  showAll: false, // month view: every event in each day instead of three; never saved, so off on every load
   filter: null, match: () => true, byDay: new Map(), tt: new Map(),
 };
 
@@ -149,7 +150,7 @@ function renderMonth() {
       const evs = S.byDay.get(d) || [];
       const t = S.tt.get(d);
       const cls = ['day', d.slice(0, 7) !== month && 'other', i >= 5 && 'weekend', d === today && 'today', d === S.selected && 'selected'].filter(Boolean).join(' ');
-      const max = 3;
+      const max = S.showAll ? Infinity : 3;
       html += `<div class="${cls}" data-day="${d}" role="cell">` +
         `<div class="day-head"><button class="num" data-day="${d}" aria-controls="day-panel" aria-label="${fmt(d, { weekday: 'long', day: 'numeric', month: 'long' })}${d === today ? ' (today)' : ''}, ${evs.length} event${evs.length === 1 ? '' : 's'}">${+d.slice(8)}</button>${t ? `<span class="tt">${esc(t)}</span>` : ''}</div>` +
         evs.slice(0, max).map((ev) => chip(ev, d)).join('') +
@@ -203,6 +204,7 @@ function renderList() {
 }
 
 function renderLabel() {
+  $('#show-all-wrap').hidden = S.view !== 'month';
   let label;
   if (S.view === 'month') label = fmt(S.date, { month: 'long', year: 'numeric' });
   else if (S.view === 'week') {
@@ -546,6 +548,10 @@ function bind() {
   $('#filters-open').addEventListener('click', () => toggleDrawer(true));
   $('#filters-close').addEventListener('click', () => toggleDrawer(false));
   $('#filters-done').addEventListener('click', () => toggleDrawer(false));
+
+  // Browsers restore a ticked box on reload; start unticked to match S.showAll.
+  $('#show-all').checked = false;
+  $('#show-all').addEventListener('change', (e) => { S.showAll = e.target.checked; if (S.view === 'month') renderMonth(); });
 
   $('#subscribe-open').addEventListener('click', () => { renderSubscribe(); $('#subscribe-dialog').showModal(); });
   $('#subscribe-body').addEventListener('change', (e) => { if (e.target.name === 'submode') renderSubscribe(e.target.value); });
