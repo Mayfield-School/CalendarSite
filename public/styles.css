@@ -294,3 +294,35 @@ h1, h2, h3 { margin: 0; }
   .layout { display: block; padding: 0; }
   .card { box-shadow: none; break-inside: avoid; }
 }
+
+/* ---------- staff view (/staff/) ----------
+   Same layout in a deep teal palette, with a "Staff" badge and a striped
+   strip under the header, so it can't be mistaken for the public calendar. */
+html[data-view="staff"] {
+  --navy: #0d4a44;
+  --navy-700: #083631;
+  --navy-50: #e6f2f0;
+  --cream-2: #eff4f3;
+  --line: #d6e2df;
+  --line-strong: #bccfca;
+  --shadow: 0 1px 2px rgba(8, 54, 49, .07), 0 4px 14px rgba(8, 54, 49, .07);
+}
+html[data-view="staff"] .site-header {
+  background: repeating-linear-gradient(135deg, var(--navy) 0 18px, #0f534c 18px 36px);
+}
+html[data-view="staff"] .lede { color: #d5e8e4; }
+.staff-badge {
+  display: inline-block; margin-left: 14px; padding: 3px 10px; border-radius: 999px; background: var(--gold); color: var(--navy);
+  font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; vertical-align: middle;
+}
+.brand:has(.staff-badge) { display: inline-flex; align-items: center; }
+.brand:has(.staff-badge) { text-decoration: none; }
+@media (max-width: 480px) {
+  .staff-badge { margin-left: 8px; padding: 2px 8px; font-size: 11px; }
+  html[data-view="staff"] .header-links { display: none; } /* no room beside the badge */
+}
+.staff-strip {
+  background: repeating-linear-gradient(135deg, var(--gold) 0 14px, var(--gold-600) 14px 28px); color: var(--navy);
+  font-size: 13.5px; font-weight: 600; padding: 7px 0;
+}
+.staff-strip strong { letter-spacing: .08em; text-transform: uppercase; margin-right: 6px; }

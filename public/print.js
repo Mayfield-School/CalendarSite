@@ -7,6 +7,7 @@ async function init() {
   const params = new URLSearchParams(location.search);
   // Opened from the staff view: use its data, and keep the flag through the options form.
   const staff = params.get('staff') === '1';
+  if (staff) document.documentElement.dataset.view = 'staff';
   let data;
   try {
     const res = await fetch(staff ? 'api/calendar-staff.json' : 'api/calendar.json', { cache: 'no-cache' });
