@@ -143,12 +143,11 @@ const staffPage = page
   .replace('<html lang="en-GB">', '<html lang="en-GB" data-view="staff">')
   .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <base href="../">\n  <meta name="robots" content="noindex">')
   .replace('<title>School Calendar | Mayfield School</title>', '<title>Staff Calendar | Mayfield School</title>')
-  .replace('<meta name="theme-color" content="#013568">', '<meta name="theme-color" content="#0d4a44">')
   .replace('<img src="logo.svg" alt="Mayfield" width="183" height="48">', '<img src="logo.svg" alt="Mayfield" width="183" height="48"><span class="staff-badge">Staff</span>')
-  .replace('</header>', '</header>\n  <div class="staff-strip"><div class="wrap"><strong>Staff calendar</strong> Includes staff-only events. This page isn’t linked from the public calendar.</div></div>')
   .replace('<h1>School Calendar</h1>', '<h1>Staff Calendar</h1>')
-  .replace('<p class="eyebrow">Mayfield School</p>', '<p class="eyebrow">Mayfield School · Staff</p>');
-if (!['data-view="staff"', '<base href', 'staff-badge', 'staff-strip', '<h1>Staff Calendar</h1>'].every((t) => staffPage.includes(t))) throw new Error('could not build the staff page from public/index.html');
+  .replace('<p class="eyebrow">Mayfield School</p>', '<p class="eyebrow">Mayfield School · Staff</p>')
+  .replace(/<p class="lede">[^<]*<\/p>/, '<p class="lede">Everything on the school calendar plus staff-only events. This page isn’t linked from the public calendar.</p>');
+if (!['data-view="staff"', '<base href', 'staff-badge', 'staff-only events', '<h1>Staff Calendar</h1>'].every((t) => staffPage.includes(t))) throw new Error('could not build the staff page from public/index.html');
 await write('staff/index.html', staffPage);
 
 const staffOnly = staffEvents.filter((ev) => ev.cats.some((c) => socs.get(c)?.staff)).length;

@@ -296,27 +296,30 @@ h1, h2, h3 { margin: 0; }
 }
 
 /* ---------- staff view (/staff/) ----------
-   Same layout in a deep teal palette, with a "Staff" badge and a striped
-   strip under the header, so it can't be mistaken for the public calendar. */
-html[data-view="staff"] {
-  --navy: #0d4a44;
-  --navy-700: #083631;
-  --navy-50: #e6f2f0;
-  --cream-2: #eff4f3;
-  --line: #d6e2df;
-  --line-strong: #bccfca;
-  --shadow: 0 1px 2px rgba(8, 54, 49, .07), 0 4px 14px rgba(8, 54, 49, .07);
+   Brand colours only (Mayfield brand guidelines v1.0): the header stays
+   Midnight, the hero turns Silvertree with Midnight text, and a Crestline
+   notch drops from the header into it, so the staff calendar can't be
+   mistaken for the public one. */
+html[data-view="staff"] { --silvertree: #8ebd9d; }
+html[data-view="staff"] .site-header { position: relative; border-bottom: 0; }
+/* Crestline: the arc from the logo, used at a modest scale as an accent. */
+html[data-view="staff"] .site-header::after {
+  content: ''; position: absolute; top: 100%; left: max(16px, calc((100% - 1360px) / 2 + 28px)); width: 120px; height: 22px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 22'%3E%3Cpath d='M0 0H120C92 0 72 2 60 22C48 2 28 0 0 0Z' fill='%23013568'/%3E%3C/svg%3E") no-repeat;
+  pointer-events: none;
 }
-html[data-view="staff"] .site-header {
-  background: repeating-linear-gradient(135deg, var(--navy) 0 18px, #0f534c 18px 36px);
-}
-html[data-view="staff"] .lede { color: #d5e8e4; }
+html[data-view="staff"] .hero { background: var(--silvertree); color: var(--navy); }
+html[data-view="staff"] .eyebrow { color: var(--navy); }
+html[data-view="staff"] .lede { color: var(--navy); }
+html[data-view="staff"] .cu-card { background: rgba(255, 255, 255, .55); border-color: rgba(1, 53, 104, .18); color: var(--navy); }
+html[data-view="staff"] .cu-card:hover { background: rgba(255, 255, 255, .8); }
+html[data-view="staff"] .cu-date { background: var(--navy); color: var(--cream); }
+html[data-view="staff"] .cu-when { color: var(--navy); font-weight: 600; }
 .staff-badge {
-  display: inline-block; margin-left: 14px; padding: 3px 10px; border-radius: 999px; background: var(--gold); color: var(--navy);
+  display: inline-block; margin-left: 14px; padding: 3px 10px; border-radius: 999px; background: var(--silvertree); color: var(--navy);
   font-size: 12px; font-weight: 700; vertical-align: middle;
 }
-.brand:has(.staff-badge) { display: inline-flex; align-items: center; }
-.brand:has(.staff-badge) { text-decoration: none; }
+.brand:has(.staff-badge) { display: inline-flex; align-items: center; text-decoration: none; }
 @media (max-width: 480px) {
   .staff-badge { margin-left: 8px; padding: 2px 8px; font-size: 11px; }
   html[data-view="staff"] .brand img { height: 36px; }
@@ -324,8 +327,3 @@ html[data-view="staff"] .lede { color: #d5e8e4; }
   /* Beside the badge, the back link wraps onto two lines. */
   html[data-view="staff"] .header-links a { white-space: normal; text-align: right; display: block; max-width: 8.5em; line-height: 1.3; }
 }
-.staff-strip {
-  background: repeating-linear-gradient(135deg, var(--gold) 0 14px, var(--gold-600) 14px 28px); color: var(--navy);
-  font-size: 13.5px; font-weight: 600; padding: 7px 0;
-}
-.staff-strip strong { margin-right: 6px; }
