@@ -31,7 +31,7 @@ The build also reads SOCS's staff page (`calendar.misocs.com/staff/week.aspx?ID=
 
 ## Staff view
 
-`/staff/` (for example `https://mayfield-school.github.io/CalendarSite/staff/`) works like SOCS's own `/staff` page. It is the same calendar plus a **Staff only** group: Staff Events, Governor Meetings, Report Deadlines, Lettings and Non-School Functions, each shown only when it has upcoming events. The "Staff / everything" preset includes them, while the Parents and Pupils presets leave them out. The staff view has its own subscription feeds and print page, and it isn't linked from the public page or indexed by search engines.
+`/staff/` (for example `https://mayfield-school.github.io/CalendarSite/staff/`) works like SOCS's own `/staff` page. It is the same calendar plus a **Staff only** group: Staff Events, Governor Meetings, Report Deadlines, Lettings and Non-School Functions, each shown only when it has upcoming events. The "Staff" option (the default here) includes them but leaves out sports fixtures and co-curricular ECA sessions; "Everything" includes those too. The Parents and Pupils options leave the staff categories out. The staff view has its own subscription feeds and print page, and it isn't linked from the public page or indexed by search engines.
 
 SOCS's public feed includes these events but leaves the staff category off them. The build adds it back by fetching SOCS's feed filtered to each staff category. Like SOCS's own `/staff` page, the staff view is unlisted rather than password-protected: anyone who knows the address can open it.
 

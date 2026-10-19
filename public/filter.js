@@ -4,7 +4,8 @@
 export function presetCats(preset, categories) {
   if (preset.include) return new Set(preset.include);
   const ex = new Set(preset.exclude || []);
-  return new Set(categories.map((c) => c.slug).filter((s) => !ex.has(s)));
+  const exGroups = new Set(preset.excludeGroups || []);
+  return new Set(categories.filter((c) => !ex.has(c.slug) && !exGroups.has(c.group)).map((c) => c.slug));
 }
 
 export function parseFilter(params, meta) {

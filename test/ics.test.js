@@ -99,6 +99,7 @@ test('staff-only categories appear only in the staff view and stay out of public
   const meta = { categories: staff, presets: PRESETS, defaultPreset: DEFAULT_PRESET };
   assert.ok(!parseFilter(new URLSearchParams('p=parents'), meta).cats.has('staff-events'));
   assert.ok(parseFilter(new URLSearchParams('p=staff'), meta).cats.has('staff-events'));
+  assert.ok(parseFilter(new URLSearchParams('p=everything'), meta).cats.has('staff-events'));
 });
 
 test('feed paths: presets with up to one year, single categories, staff prefix', () => {
@@ -126,4 +127,24 @@ test('SOCS feed URL for any mix of categories', () => {
   assert.equal(allSport.url, 'https://x/CalendarSync.ashx?ID=1&FT=OR&AS=1&ST=0');
   assert.deepEqual(allSport.missing, []);
   assert.equal(s('c=other-sport'), null);
+});
+
+test('the Staff preset leaves out sport (including sports SOCS adds later) and co-curricular; Everything keeps them', () => {
+  const categories = buildCategoryMeta(new Set(['Lacrosse', 'Trips']), new Map(), { staff: true });
+  const meta = { categories, presets: PRESETS, defaultPreset: DEFAULT_PRESET };
+  const staff = parseFilter(new URLSearchParams('p=staff'), meta).cats;
+  const all = parseFilter(new URLSearchParams('p=everything'), meta).cats;
+  for (const slug of ['hockey', 'other-sport', 'lacrosse', 'co-curricular']) {
+    assert.ok(!staff.has(slug), slug);
+    assert.ok(all.has(slug), slug);
+  }
+  for (const slug of ['trips', 'school-holidays', 'staff-events', 'timetable']) assert.ok(staff.has(slug), slug);
+});
+
+test('ECA sessions move from Trips to Co-curricular', () => {
+  const ev = (summary, cats) => normaliseEvent(parseIcs(`BEGIN:VCALENDAR\nBEGIN:VEVENT\nUID:1-2-SOCS-SchoolCalendar-1@SOCS\nDTSTART:20261020T160000\nSUMMARY:${summary}\nCATEGORIES:${cats}\nEND:VEVENT\nEND:VCALENDAR`)[0]);
+  assert.deepEqual(ev('ECA Riding - Hurstwood Equestrian - Group 1', 'Trips').cats, ['Co-curricular']);
+  assert.deepEqual(ev('ECA Drama', 'Trips, Dance Drama & Music').cats, ['Co-curricular', 'Dance Drama & Music']);
+  assert.deepEqual(ev('Geography Field Trip', 'Trips').cats, ['Trips']);
+  assert.deepEqual(ev('Decathlon visit', 'Trips').cats, ['Trips']);
 });
