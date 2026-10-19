@@ -13,7 +13,8 @@
 // staff categories on events that are also public), so they come from the JSON
 // that SOCS's own /staff page loads. Its daily co-curricular sessions are left out.
 
-import { readFile, writeFile, mkdir, rm, cp } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm, cp, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseIcs, normaliseEvent, normaliseSocsRow, buildIcs } from '../lib/ics.js';
@@ -32,7 +33,8 @@ const SOCS_BASE = FEED_URL.replace(/&A=1\b/, '');
 const STAFF_PAGE_URL = process.env.STAFF_PAGE_URL || 'https://calendar.misocs.com/staff/week.aspx?ID=3405';
 // The staff page's event data; it only answers requests that name the staff page as their Referer.
 const STAFF_EVENTS_URL = process.env.STAFF_EVENTS_URL || 'https://calendar.misocs.com/staff/CalendarEventHandler.ashx?V=2&ID=3405';
-const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/$/, '');
+// Always https: GitHub reports http:// for a custom domain while its certificate is still being issued.
+const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/$/, '').replace(/^http:\/\//, 'https://');
 const CALENDAR_NAME = process.env.CALENDAR_NAME || 'Mayfield School';
 const YEARS = [7, 8, 9, 10, 11, 12, 13];
 
@@ -120,6 +122,19 @@ const socsIds = new Map([...socs].map(([name, { param }]) => [name, param]));
 
 await rm(OUT, { recursive: true, force: true });
 await cp(path.join(ROOT, 'public'), OUT, { recursive: true });
+
+// Stamp the stylesheet and script addresses with a version, so a page that a browser or
+// proxy still has cached keeps loading the styles and scripts it was built with.
+const assets = (await readdir(OUT)).filter((f) => /\.(css|js)$/.test(f)).sort();
+const hash = createHash('sha1');
+for (const f of assets) hash.update(await readFile(path.join(OUT, f)));
+const version = hash.digest('hex').slice(0, 10);
+const versioned = (text) => text
+  .replace(/(href|src)="([\w-]+\.(?:css|js))"/g, `$1="$2?v=${version}"`)
+  .replace(/from '\.\/([\w-]+\.js)'/g, `from './$1?v=${version}'`);
+for (const f of ['index.html', 'print.html', ...assets.filter((a) => a.endsWith('.js'))]) {
+  await writeFile(path.join(OUT, f), versioned(await readFile(path.join(OUT, f), 'utf8')));
+}
 const write = async (rel, body) => {
   await mkdir(path.dirname(path.join(OUT, rel)), { recursive: true });
   await writeFile(path.join(OUT, rel), body);
@@ -171,7 +186,7 @@ for (const ev of [...events, ...staffEvents.filter((e) => !publicIds.has(e.id))]
 }
 
 // The staff view is the same page pointed at the staff data; <base> keeps its links at the site root.
-const page = await readFile(path.join(ROOT, 'public', 'index.html'), 'utf8');
+const page = await readFile(path.join(OUT, 'index.html'), 'utf8');
 const staffPage = page
   .replace('<html lang="en-GB">', '<html lang="en-GB" data-view="staff">')
   .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <base href="../">\n  <meta name="robots" content="noindex">')
