@@ -4,7 +4,7 @@ A branded, filterable front-end for the school's SOCS calendar, published on Git
 
 ## How it works
 
-GitHub Pages only serves static files, and the SOCS feed doesn't allow browsers to read it from another site. A GitHub Actions workflow ([.github/workflows/pages.yml](.github/workflows/pages.yml)) therefore fetches the feed and builds the whole site into `dist/`. It runs on every push to `main`, every 30 minutes and on demand (Actions tab → *Build and deploy calendar* → *Run workflow*). If SOCS can't be reached, the build fails and the last published version stays up.
+GitHub Pages only serves static files, and the SOCS feed doesn't allow browsers to read it from another site. A GitHub Actions workflow ([.github/workflows/pages.yml](.github/workflows/pages.yml)) therefore fetches the feed and builds the whole site into `dist/`. It runs on every push to `main`, every hour (at 17 minutes past; GitHub may start timed runs late or occasionally skip one) and on demand (Actions tab → *Build and deploy calendar* → *Run workflow*). If SOCS can't be reached, the build fails and the last published version stays up.
 
 The build ([scripts/build.js](scripts/build.js)) writes:
 
