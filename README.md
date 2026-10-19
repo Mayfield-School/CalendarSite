@@ -13,6 +13,7 @@ The build ([scripts/build.js](scripts/build.js)) writes:
 - `feeds/<preset>.ics` and `feeds/<preset>-y<7–13>.ics`: one feed per audience (Parents, Prospective families, Pupils, Staff), alone or with one year group.
 - `feeds/cat-<category>.ics`: one feed per category.
 - `event/<id>.ics`: one file per event, for "add to calendar".
+- `404.html` (with `redirect.js`): GitHub Pages shows it for any unknown address. It sends old SOCS links to the new calendar: `week.aspx` and other `.aspx` pages to the calendar, `/staff/…` to the staff calendar, and `EventDetails.aspx?…&EID=…` to that event. Anything else gets a "Page not found" page.
 - `CalendarSync.ashx` and `calendarsync.ashx`: copies of `calendar.ics` under SOCS's feed name. If calendar.mayfieldgirls.org is pointed at this site, parents who subscribed through SOCS (`webcal://calendar.mayfieldgirls.org/CalendarSync.ashx?…`) keep getting updates. Pages ignores the query string, so subscriptions that were filtered in SOCS get the full public calendar.
 - `staff/index.html`, `api/calendar-staff.json`, `staff/calendar.ics` and `staff/feeds/…`: the staff view (see below).
 

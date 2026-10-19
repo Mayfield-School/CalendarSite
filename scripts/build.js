@@ -198,5 +198,10 @@ const staffPage = page
 if (!['data-view="staff"', '<base href', 'staff-badge', 'staff-only events', '<h1 id="page-title">Staff Calendar</h1>'].every((t) => staffPage.includes(t))) throw new Error('could not build the staff page from public/index.html');
 await write('staff/index.html', staffPage);
 
+// "Page not found", which also forwards old SOCS links (see public/redirect.js). Pages serves it
+// at any address, so its links are absolute from the site's own path.
+const sitePath = PUBLIC_URL ? new URL(`${PUBLIC_URL}/`).pathname : '/';
+await write('404.html', (await readFile(path.join(OUT, '404.html'), 'utf8')).replaceAll('{{BASE}}', sitePath).replaceAll('{{V}}', version));
+
 const staffOnly = staffEvents.filter((ev) => ev.cats.some((c) => socs.get(c)?.staff)).length;
 console.log(`Built dist/ with ${events.length} events (${staffOnly} with staff categories), ${feedCount} feeds${PUBLIC_URL ? ` for ${PUBLIC_URL}` : ''}.`);

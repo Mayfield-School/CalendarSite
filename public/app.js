@@ -366,8 +366,10 @@ const pageBase = () => siteBase() + (STAFF ? 'staff/' : '');
 const shareUrl = (ev) => `${pageBase()}?e=${ev.id}`;
 
 function openEvent(id) {
-  const ev = S.byId.get(id);
+  // Staff-only events have SOCS's own number with an "s" in front (old SOCS staff links use the number alone).
+  const ev = S.byId.get(id) || S.byId.get(`s${id}`);
   if (!ev) return;
+  id = ev.id;
   const dlg = $('#event-dialog');
   dlg.style.setProperty('--c', colorOf(ev));
   const row = (icon, html) => `<div class="ev-row">${icon}<span>${html}</span></div>`;

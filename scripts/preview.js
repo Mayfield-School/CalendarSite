@@ -19,6 +19,7 @@ http.createServer(async (req, res) => {
     const body = await readFile(file);
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream' }).end(body);
   } catch {
-    res.writeHead(404, { 'Content-Type': 'text/plain' }).end('Not found');
+    const page = await readFile(path.join(DIST, '404.html')).catch(() => 'Not found');
+    res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' }).end(page);
   }
 }).listen(PORT, '127.0.0.1', () => console.log(`Previewing dist/ at http://127.0.0.1:${PORT}/`));
