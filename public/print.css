@@ -3,7 +3,7 @@
    one sheet per month, thead repeated on continuation sheets. */
 :root {
   --navy: #013568; --gold: #fad563; --cream: #fff1e6;
-  --ink: #11253a; --soft: #4c6070; --faint: #8a9aa8; --rule: #d7dee6;
+  --ink: #11253a; --soft: #4c6070; --faint: #5f6f7d; --rule: #d7dee6;
   --weekend: #f7f2ec; --today: #fff6d9; --warn: #b06a1c;
   /* Day-number depth and room per written line: floor for fit-mode cells.
      Restated for print, where millimetres are the useful unit. */
@@ -26,7 +26,8 @@ body { margin: 0; background: #eef1f5; color: var(--ink); font: 14px/1.4 var(--s
 .f input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
 .checks { display: flex; flex-direction: column; gap: 4px; padding-bottom: 2px; }
 .chk { display: flex; gap: 6px; align-items: center; font-size: .82rem; cursor: pointer; }
-.chk input { margin: 0; accent-color: var(--gold); }
+.chk input { margin: 0; width: 20px; height: 20px; accent-color: var(--gold); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .actions { display: flex; gap: 8px; }
 .btn { font: inherit; font-size: .85rem; font-weight: 600; padding: 7px 15px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: rgba(255, 255, 255, .12); color: #fff; cursor: pointer; text-decoration: none; display: inline-block; white-space: nowrap; }
 .btn:hover { background: rgba(255, 255, 255, .22); }
@@ -62,7 +63,7 @@ td.we { background: var(--weekend); }
 td.now { background: var(--today); }
 .dn { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: .84rem; font-weight: 700; color: var(--navy); line-height: 1.1; margin-bottom: 2px; }
 .dn .wk { font-size: .6rem; font-weight: 500; color: var(--soft); border: 1px solid var(--rule); border-radius: 3px; padding: 0 3px; white-space: nowrap; }
-td.out .dn { color: #c3ccd4; font-weight: 400; }
+td.out .dn { color: #66737f; font-weight: 400; }
 .ev { font-size: .64rem; line-height: 1.26; margin-bottom: 1px; display: flex; gap: 3px; align-items: baseline; }
 .ev::before { content: ''; flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--c, var(--navy)); transform: translateY(-1px); }
 .ev .t { color: var(--navy); font-weight: 700; flex: none; font-variant-numeric: tabular-nums; }

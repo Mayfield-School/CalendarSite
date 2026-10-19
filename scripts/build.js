@@ -144,10 +144,10 @@ const staffPage = page
   .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <base href="../">\n  <meta name="robots" content="noindex">')
   .replace('<title>School Calendar | Mayfield School</title>', '<title>Staff Calendar | Mayfield School</title>')
   .replace('<img src="logo.svg" alt="Mayfield" width="183" height="48">', '<img src="logo.svg" alt="Mayfield" width="183" height="48"><span class="staff-badge">Staff</span>')
-  .replace('<h1>School Calendar</h1>', '<h1>Staff Calendar</h1>')
+  .replace('<h1 id="page-title">School Calendar</h1>', '<h1 id="page-title">Staff Calendar</h1>')
   .replace('<p class="eyebrow">Mayfield School</p>', '<p class="eyebrow">Mayfield School · Staff</p>')
   .replace(/<p class="lede">[^<]*<\/p>/, '<p class="lede">Everything on the school calendar plus staff-only events. This page isn’t linked from the public calendar.</p>');
-if (!['data-view="staff"', '<base href', 'staff-badge', 'staff-only events', '<h1>Staff Calendar</h1>'].every((t) => staffPage.includes(t))) throw new Error('could not build the staff page from public/index.html');
+if (!['data-view="staff"', '<base href', 'staff-badge', 'staff-only events', '<h1 id="page-title">Staff Calendar</h1>'].every((t) => staffPage.includes(t))) throw new Error('could not build the staff page from public/index.html');
 await write('staff/index.html', staffPage);
 
 const staffOnly = staffEvents.filter((ev) => ev.cats.some((c) => socs.get(c)?.staff)).length;

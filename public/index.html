@@ -27,12 +27,13 @@
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero" aria-labelledby="page-title">
     <div class="wrap">
       <p class="eyebrow">Mayfield School</p>
-      <h1>School Calendar</h1>
+      <h1 id="page-title">School Calendar</h1>
       <p class="lede">Term dates, events, trips and fixtures — filtered to what matters to you, and synced to your phone.</p>
-      <div class="coming-up" id="coming-up" aria-label="Key dates coming up"></div>
+      <h2 class="sr-only">Key dates coming up</h2>
+      <div class="coming-up" id="coming-up"></div>
     </div>
   </section>
 
@@ -40,7 +41,7 @@
     <aside class="filters" id="filters" aria-label="Filters">
       <div class="filters-head">
         <h2>Filter the calendar</h2>
-        <button class="icon-btn filters-close" id="filters-close" aria-label="Close filters">✕</button>
+        <button class="icon-btn filters-close" id="filters-close" aria-label="Close filters"><span aria-hidden="true">✕</span></button>
       </div>
 
       <div class="filter-section">
@@ -69,15 +70,15 @@
       <div class="toolbar">
         <div class="nav-group">
           <button class="btn btn-ghost" id="today">Today</button>
-          <button class="icon-btn" id="prev" aria-label="Previous">‹</button>
-          <button class="icon-btn" id="next" aria-label="Next">›</button>
+          <button class="icon-btn" id="prev" aria-label="Previous month"><span aria-hidden="true">‹</span></button>
+          <button class="icon-btn" id="next" aria-label="Next month"><span aria-hidden="true">›</span></button>
           <h2 class="range-label" id="range-label" aria-live="polite"></h2>
         </div>
         <div class="tool-group">
-          <div class="segmented" role="tablist" aria-label="View">
-            <button role="tab" data-view="month">Month</button>
-            <button role="tab" data-view="week">Week</button>
-            <button role="tab" data-view="list">List</button>
+          <div class="segmented" role="group" aria-label="Calendar view">
+            <button data-view="month" aria-pressed="false">Month</button>
+            <button data-view="week" aria-pressed="false">Week</button>
+            <button data-view="list" aria-pressed="false">List</button>
           </div>
         </div>
       </div>
@@ -87,7 +88,7 @@
           <span class="sr-only">Search events</span>
           <input type="search" id="search" placeholder="Search events, e.g. hockey, open morning…" autocomplete="off">
         </label>
-        <button class="btn btn-ghost filters-open" id="filters-open">Filters <span class="badge" id="filter-count"></span></button>
+        <button class="btn btn-ghost filters-open" id="filters-open" aria-controls="filters" aria-expanded="false">Filters <span class="badge" id="filter-count"></span></button>
         <a class="btn btn-ghost" id="print-link" href="print.html">Print / PDF</a>
         <button class="btn btn-gold" id="subscribe-open">Subscribe / Sync</button>
       </div>
@@ -108,19 +109,19 @@
       <div class="footer-meta">
         <span id="updated"></span>
         <span>All times are UK time.</span>
-        <span>Keyboard: ← → navigate · T today · M/W/L views · / search</span>
+        <span>Use the ← and → keys to move between months, weeks or dates.</span>
       </div>
     </div>
   </footer>
 
   <dialog id="event-dialog" class="dialog" aria-labelledby="ev-title">
     <div class="dialog-stripe"></div>
-    <button class="icon-btn dialog-close" data-close aria-label="Close">✕</button>
+    <button class="icon-btn dialog-close" data-close aria-label="Close"><span aria-hidden="true">✕</span></button>
     <div class="dialog-body" id="event-body"></div>
   </dialog>
 
   <dialog id="subscribe-dialog" class="dialog" aria-labelledby="sub-title">
-    <button class="icon-btn dialog-close" data-close aria-label="Close">✕</button>
+    <button class="icon-btn dialog-close" data-close aria-label="Close"><span aria-hidden="true">✕</span></button>
     <div class="dialog-body" id="subscribe-body"></div>
   </dialog>
 

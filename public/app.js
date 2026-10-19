@@ -49,7 +49,7 @@ const yearLabel = (ys) => (ys.length === 1 ? `Year ${ys[0]}` : `Years ${ys.slice
 
 function venueBadge(ev) {
   if (!ev.venue) return '';
-  return `<span class="venue ${ev.venue.toLowerCase()}" title="${ev.venue} fixture">${ev.venue === 'Neutral' ? 'N' : ev.venue}</span>`;
+  return `<span class="venue ${ev.venue.toLowerCase()}" title="${ev.venue} fixture" aria-hidden="true">${ev.venue === 'Neutral' ? 'N' : ev.venue}</span><span class="sr-only">${ev.venue} fixture:</span>`;
 }
 
 function timeText(ev, day) {
@@ -141,7 +141,8 @@ function renderMonth() {
   const month = first.slice(0, 7);
   const today = todayKey();
   let d = addDays(first, -dow(first));
-  let html = `<div class="month" role="grid" aria-label="${fmt(first, { month: 'long', year: 'numeric' })}"><div class="dow-row" role="row">${DOW.map((x) => `<div role="columnheader">${x}</div>`).join('')}</div>`;
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  let html = `<div class="month" role="table" aria-label="${fmt(first, { month: 'long', year: 'numeric' })}"><div class="dow-row" role="row">${DOW.map((x, i) => `<div role="columnheader" aria-label="${dayNames[i]}">${x}</div>`).join('')}</div>`;
   do {
     html += '<div class="week-row" role="row">';
     for (let i = 0; i < 7; i++, d = addDays(d, 1)) {
@@ -149,8 +150,8 @@ function renderMonth() {
       const t = S.tt.get(d);
       const cls = ['day', d.slice(0, 7) !== month && 'other', i >= 5 && 'weekend', d === today && 'today', d === S.selected && 'selected'].filter(Boolean).join(' ');
       const max = 3;
-      html += `<div class="${cls}" data-day="${d}" role="gridcell">` +
-        `<div class="day-head"><button class="num" data-day="${d}" aria-label="${fmt(d, { weekday: 'long', day: 'numeric', month: 'long' })}, ${evs.length} event${evs.length === 1 ? '' : 's'}">${+d.slice(8)}</button>${t ? `<span class="tt">${esc(t)}</span>` : ''}</div>` +
+      html += `<div class="${cls}" data-day="${d}" role="cell">` +
+        `<div class="day-head"><button class="num" data-day="${d}" aria-controls="day-panel" aria-label="${fmt(d, { weekday: 'long', day: 'numeric', month: 'long' })}${d === today ? ' (today)' : ''}, ${evs.length} event${evs.length === 1 ? '' : 's'}">${+d.slice(8)}</button>${t ? `<span class="tt">${esc(t)}</span>` : ''}</div>` +
         evs.slice(0, max).map((ev) => chip(ev, d)).join('') +
         (evs.length > max ? `<button class="more" data-day="${d}">+${evs.length - max} more</button>` : '') +
         `<div class="dots" aria-hidden="true">${evs.slice(0, 5).map((ev) => `<i style="--c:${colorOf(ev)}"></i>`).join('')}</div></div>`;
@@ -211,7 +212,10 @@ function renderLabel() {
       : `${fmt(a, { day: 'numeric', month: 'short' })} – ${fmt(b, { day: 'numeric', month: 'short', year: 'numeric' })}`;
   } else label = S.filter.q ? 'Search results' : `From ${fmt(S.date, { day: 'numeric', month: 'long', year: 'numeric' })}`;
   $('#range-label').textContent = label;
-  document.querySelectorAll('.segmented button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === S.view)));
+  document.querySelectorAll('.segmented button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === S.view)));
+  const unit = { month: 'month', week: 'week', list: '30 days' }[S.view];
+  $('#prev').setAttribute('aria-label', `Previous ${unit}`);
+  $('#next').setAttribute('aria-label', `Next ${unit}`);
 }
 
 function renderActiveFilters() {
@@ -271,7 +275,7 @@ function renderFilters() {
     return `<div class="cat-group"><div class="cat-group-head"><strong>${esc(g.name)}</strong>` +
       `<button class="link-btn" data-group="${g.id}" data-on="${!allOn}">${allOn ? 'None' : 'All'}</button></div>` +
       cats.map((c) => `<label class="cat" style="--c:${c.color}"><input type="checkbox" data-cat="${c.slug}"${f.cats.has(c.slug) ? ' checked' : ''}>` +
-        `<span class="box"></span><span class="name">${esc(c.label)}</span><span class="count" title="Upcoming events">${c.count}</span></label>`).join('') +
+        `<span class="box"></span><span class="name">${esc(c.label)}</span><span class="count" title="Upcoming events">${c.count}<span class="sr-only"> upcoming</span></span></label>`).join('') +
       '</div>';
   }).join('');
 }
@@ -302,7 +306,9 @@ function resetFilters() {
 function toggleDrawer(open) {
   $('#filters').classList.toggle('open', open);
   document.body.classList.toggle('filters-shown', open);
+  $('#filters-open').setAttribute('aria-expanded', String(open));
   if (open) $('#filters-close').focus();
+  else if (matchMedia('(max-width: 1000px)').matches) $('#filters-open').focus();
 }
 
 // ---------- URL ----------
@@ -380,7 +386,7 @@ function openEvent(id) {
     '<h3>Share</h3><div class="btn-row">' +
     `<button class="btn btn-ghost" data-copy="${esc(shareUrl(ev))}">Copy link</button>` +
     (navigator.share ? `<button class="btn btn-ghost" data-share="${ev.id}">Share…</button>` : '') +
-    (ev.url ? `<a class="btn btn-ghost" href="${esc(ev.url)}" target="_blank" rel="noopener">Details on SOCS ↗</a>` : '') + '</div>';
+    (ev.url ? `<a class="btn btn-ghost" href="${esc(ev.url)}" target="_blank" rel="noopener">Details on SOCS <span aria-hidden="true">↗</span><span class="sr-only">(opens in a new tab)</span></a>` : '') + '</div>';
   S.openEvent = id;
   syncUrl();
   if (!dlg.open) dlg.showModal();
@@ -550,14 +556,8 @@ function bind() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && document.body.classList.contains('filters-shown')) return toggleDrawer(false);
     if (document.querySelector('dialog[open]') || e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
-    const k = e.key.toLowerCase();
     if (e.key === 'ArrowLeft') move(-1);
     else if (e.key === 'ArrowRight') move(1);
-    else if (k === 't') $('#today').click();
-    else if (k === 'm') setView('month');
-    else if (k === 'w') setView('week');
-    else if (k === 'l') setView('list');
-    else if (e.key === '/') { e.preventDefault(); $('#search').focus(); }
   });
 }
 

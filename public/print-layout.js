@@ -205,7 +205,7 @@ function controls(o, ctx, built) {
   }
   if (built.hitTotalCap) warn.push(`<b>Stopped at ${built.pages.length} pages.</b> The range needed more than the total-page limit. Raise it or shorten the range.`);
 
-  return `<header class="bar noprint"><div class="bar-in">
+  return `<header class="bar noprint"><h1 class="sr-only">Print the calendar</h1><div class="bar-in">
   <a class="brand" href="${esc(ctx.homeHref)}" title="Back to the calendar"><img src="logo.svg" alt="Mayfield" width="137" height="36"></a>
   <form class="controls" method="get" action="print.html">${hidden}
     ${f('From', 'start', `${o.start.y}-${pad(o.start.m)}`, 'type="month" required')}
