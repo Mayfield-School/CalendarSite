@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'">
+  <title>School Calendar | Mayfield School</title>
+  <meta name="description" content="Term dates, events, trips and fixtures at Mayfield School, East Sussex.">
+  <meta name="theme-color" content="#013568">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to calendar</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="https://www.mayfieldgirls.org/" aria-label="Mayfield School home">
+        <img src="logo.svg" alt="Mayfield" width="183" height="48">
+      </a>
+      <nav class="header-links" aria-label="School links">
+        <a href="https://www.mayfieldgirls.org/">School website</a>
+        <a href="https://www.mayfieldgirls.org/my-mayfield">Portals</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Mayfield School</p>
+      <h1>School Calendar</h1>
+      <p class="lede">Term dates, events, trips and fixtures — filtered to what matters to you, and synced to your phone.</p>
+      <div class="coming-up" id="coming-up" aria-label="Key dates coming up"></div>
+    </div>
+  </section>
+
+  <main id="main" class="wrap layout">
+    <aside class="filters" id="filters" aria-label="Filters">
+      <div class="filters-head">
+        <h2>Filter the calendar</h2>
+        <button class="icon-btn filters-close" id="filters-close" aria-label="Close filters">✕</button>
+      </div>
+
+      <div class="filter-section">
+        <h3>I am…</h3>
+        <div class="chips" id="presets"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3>Year group</h3>
+        <p class="hint">Shows events for the chosen years plus whole-school events.</p>
+        <div class="chips" id="years"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3>Categories</h3>
+        <div id="categories"></div>
+      </div>
+
+      <div class="filters-foot">
+        <button class="btn btn-ghost" id="reset-filters">Reset filters</button>
+        <button class="btn btn-primary filters-done" id="filters-done">Show events</button>
+      </div>
+    </aside>
+
+    <section class="calendar" aria-label="Calendar">
+      <div class="toolbar">
+        <div class="nav-group">
+          <button class="btn btn-ghost" id="today">Today</button>
+          <button class="icon-btn" id="prev" aria-label="Previous">‹</button>
+          <button class="icon-btn" id="next" aria-label="Next">›</button>
+          <h2 class="range-label" id="range-label" aria-live="polite"></h2>
+        </div>
+        <div class="tool-group">
+          <div class="segmented" role="tablist" aria-label="View">
+            <button role="tab" data-view="month">Month</button>
+            <button role="tab" data-view="week">Week</button>
+            <button role="tab" data-view="list">List</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar toolbar-2">
+        <label class="search">
+          <span class="sr-only">Search events</span>
+          <input type="search" id="search" placeholder="Search events, e.g. hockey, open morning…" autocomplete="off">
+        </label>
+        <button class="btn btn-ghost filters-open" id="filters-open">Filters <span class="badge" id="filter-count"></span></button>
+        <a class="btn btn-ghost" id="print-link" href="print.html">Print / PDF</a>
+        <button class="btn btn-gold" id="subscribe-open">Subscribe / Sync</button>
+      </div>
+
+      <div class="active-filters" id="active-filters"></div>
+      <div id="view" class="view" tabindex="-1">
+        <div class="loading">Loading calendar…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div>
+        <strong>Mayfield School</strong><br>
+        The Old Palace, Mayfield, East Sussex TN20 6PH
+      </div>
+      <div class="footer-meta">
+        <span id="updated"></span>
+        <span>All times are UK time.</span>
+        <span>Keyboard: ← → navigate · T today · M/W/L views · / search</span>
+      </div>
+    </div>
+  </footer>
+
+  <dialog id="event-dialog" class="dialog" aria-labelledby="ev-title">
+    <div class="dialog-stripe"></div>
+    <button class="icon-btn dialog-close" data-close aria-label="Close">✕</button>
+    <div class="dialog-body" id="event-body"></div>
+  </dialog>
+
+  <dialog id="subscribe-dialog" class="dialog" aria-labelledby="sub-title">
+    <button class="icon-btn dialog-close" data-close aria-label="Close">✕</button>
+    <div class="dialog-body" id="subscribe-body"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

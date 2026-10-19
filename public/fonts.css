@@ -1,0 +1,4 @@
+/* DM Sans + DM Serif Display (SIL Open Font License), self-hosted so the page
+   never depends on Google Fonts. Latin subset. */
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 100 1000; font-display: swap; src: url(fonts/dm-sans.woff2) format('woff2'); }
+@font-face { font-family: 'DM Serif Display'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/dm-serif-display.woff2) format('woff2'); }

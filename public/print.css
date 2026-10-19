@@ -1,0 +1,106 @@
+/* Printable calendar. Print rules carried over from titan's calprint, which
+   were proven against Chromium's print engine: A4 landscape, 8mm margins,
+   one sheet per month, thead repeated on continuation sheets. */
+:root {
+  --navy: #013568; --gold: #fad563; --cream: #fff1e6;
+  --ink: #11253a; --soft: #4c6070; --faint: #8a9aa8; --rule: #d7dee6;
+  --weekend: #f7f2ec; --today: #fff6d9; --warn: #b06a1c;
+  /* Day-number depth and room per written line: floor for fit-mode cells.
+     Restated for print, where millimetres are the useful unit. */
+  --dnh: 17px; --writeh: 18px;
+  --sans: 'DM Sans', 'Segoe UI', Arial, sans-serif;
+  --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #eef1f5; color: var(--ink); font: 14px/1.4 var(--sans); }
+
+/* ---------- controls (screen only) ---------- */
+.bar { background: var(--navy); color: #fff; border-bottom: 3px solid var(--gold); padding: 12px 18px 10px; }
+.bar-in { max-width: 1180px; margin: 0 auto; display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; }
+.brand img { height: 36px; width: auto; display: block; margin-bottom: 2px; }
+.controls { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; flex: 1; }
+.f { display: flex; flex-direction: column; gap: 3px; }
+.f span { font-size: .72rem; font-weight: 600; color: rgba(255, 255, 255, .75); }
+.f input { font: inherit; font-size: .85rem; padding: 5px 8px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 6px; background: rgba(255, 255, 255, .1); color: #fff; width: 9.5rem; color-scheme: dark; }
+.f input[type=number] { width: 5.2rem; }
+.f input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.checks { display: flex; flex-direction: column; gap: 4px; padding-bottom: 2px; }
+.chk { display: flex; gap: 6px; align-items: center; font-size: .82rem; cursor: pointer; }
+.chk input { margin: 0; accent-color: var(--gold); }
+.actions { display: flex; gap: 8px; }
+.btn { font: inherit; font-size: .85rem; font-weight: 600; padding: 7px 15px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: rgba(255, 255, 255, .12); color: #fff; cursor: pointer; text-decoration: none; display: inline-block; white-space: nowrap; }
+.btn:hover { background: rgba(255, 255, 255, .22); }
+.btn-go { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+.btn-go:hover { background: #e8bd3a; }
+.btn.busy { opacity: .7; pointer-events: none; }
+.meta { max-width: 1180px; margin: 8px auto 0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px; font-size: .76rem; color: rgba(255, 255, 255, .7); }
+.meta strong { color: #fff; font-weight: 600; }
+.meta a { color: var(--gold); }
+.warn { max-width: 1180px; margin: 12px auto 0; background: #fff; border-left: 4px solid #df8d34; padding: 11px 16px; border-radius: 6px; font-size: .86rem; color: var(--soft); }
+.warn b, .more-i { color: var(--warn); font-weight: 700; }
+
+/* ---------- sheets ---------- */
+.sheets { max-width: 1180px; margin: 18px auto 50px; padding: 0 18px; }
+.sheet { background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .14); margin-bottom: 22px; padding: 13mm 12mm; border-radius: 3px; }
+.none { color: var(--faint); }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 2px solid var(--navy); padding-bottom: 6px; margin-bottom: 6px; }
+.head h2 { font: 400 1.6rem/1.1 var(--serif); margin: 0; color: var(--navy); }
+.head .cont { font-size: .78rem; color: var(--soft); font-style: italic; }
+.head .sch { font-size: .76rem; color: var(--faint); margin-left: auto; }
+
+table.cal { width: 100%; border-collapse: collapse; table-layout: fixed; }
+table.cal thead th { background: #fff; }
+tr.mh th { border: none; padding: 0; font-weight: 400; text-align: left; }
+tr.dh th { font-size: .74rem; color: var(--navy); font-weight: 700; padding: 4px 4px; border-bottom: 2px solid var(--gold); text-align: left; }
+table.cal td { border: 1px solid var(--rule); vertical-align: top; padding: 3px 4px; height: 26mm; overflow: hidden; }
+/* Fit mode: rows grow to content; a week row is never split across sheets.
+   `height` on a cell is a minimum, so the floor only lifts quiet days. */
+table.cal.fit td { overflow: visible; height: calc(var(--dnh) + var(--minrows, 5) * var(--writeh)); }
+table.fit tr, table.wrap tr { break-inside: avoid; page-break-inside: avoid; }
+td.out { background: #fbfcfd; }
+td.we { background: var(--weekend); }
+td.now { background: var(--today); }
+.dn { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: .84rem; font-weight: 700; color: var(--navy); line-height: 1.1; margin-bottom: 2px; }
+.dn .wk { font-size: .6rem; font-weight: 500; color: var(--soft); border: 1px solid var(--rule); border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+td.out .dn { color: #c3ccd4; font-weight: 400; }
+.ev { font-size: .64rem; line-height: 1.26; margin-bottom: 1px; display: flex; gap: 3px; align-items: baseline; }
+.ev::before { content: ''; flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--c, var(--navy)); transform: translateY(-1px); }
+.ev .t { color: var(--navy); font-weight: 700; flex: none; font-variant-numeric: tabular-nums; }
+.ev .s { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev.ad .s { font-weight: 600; }
+.ev.cont .s { font-weight: 400; font-style: italic; color: var(--soft); }
+/* Full titles: wrap, and let the cell grow so nothing is clipped silently. */
+table.wrap .ev .s { white-space: normal; overflow: visible; text-overflow: clip; }
+table.wrap td { overflow: visible; }
+.more { font-size: .6rem; color: var(--warn); font-weight: 700; margin-top: 1px; }
+.foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .62rem; color: var(--faint); }
+
+@media (max-width: 900px) {
+  .sheets { padding: 0 8px; overflow-x: auto; }
+  .sheet { min-width: 860px; }
+}
+
+/* ---------- print ---------- */
+@page { size: A4 landscape; margin: 8mm; }
+@media print {
+  body { background: #fff; font-size: 12px; }
+  .noprint { display: none !important; }
+  .sheets { max-width: none; margin: 0; padding: 0; }
+  .sheet { box-shadow: none; margin: 0; padding: 0; border-radius: 0; min-width: 0; page-break-after: always; break-after: page; }
+  .sheet:last-child { page-break-after: auto; break-after: auto; }
+  :root { --dnh: 12pt; --writeh: 5mm; }
+  /* A4 landscape less 8mm margins leaves 194mm; the heading, day names and
+     footer take ~24mm. A fixed 30mm row only fits 5 weeks, and a month can
+     span 4, 5 or 6, so size rows by the count to keep one sheet = one page. */
+  table.cal td { height: 33mm; }
+  table.cal.rows-4 td { height: 40mm; }
+  table.cal.rows-6 td { height: 27mm; }
+  table.cal.rows-6 { --writeh: 4.4mm; } /* keeps the fit-mode floor within a page */
+  tr { break-inside: avoid; page-break-inside: avoid; }
+  .ev { font-size: 7.3pt; line-height: 1.2; }
+  .dn { font-size: 9.5pt; }
+  .head h2 { font-size: 18pt; }
+  td.we, .ev::before, tr.dh th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  td.we { background: #f4f1ed !important; }
+  td.now { background: #fff !important; }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "mayfield-calendar",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Branded, filterable front-end for the Mayfield School SOCS calendar feed, built as a static site for GitHub Pages",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "preview": "node scripts/preview.js",
+    "test": "node --test test/"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
