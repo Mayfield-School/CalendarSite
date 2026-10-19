@@ -8,7 +8,6 @@
   --sand: #f5e5d9;
   --gold: #fad563;
   --gold-600: #e8bd3a;
-  --red: #c30015;
   --ink: #1d2433;
   --muted: #5b6172;
   --line: #e7ddd2;
@@ -181,7 +180,8 @@ h1, h2, h3 { margin: 0; }
 .day-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; gap: 4px; }
 .num { font-weight: 700; font-size: 14px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 999px; border: 0; background: none; padding: 0; }
 .num:hover { background: var(--navy-50); }
-.day.today .num { background: var(--red); color: #fff; }
+/* Today: a Sunbeam highlight with Midnight text, in every view. */
+.day.today .num { background: var(--gold); color: var(--navy); }
 .tt { font-size: 10.5px; color: var(--muted); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 4px; white-space: nowrap; }
 .more { background: none; border: 0; padding: 4px 6px; min-height: 24px; font-size: 12px; font-weight: 700; color: var(--navy); }
 .dots { display: none; gap: 3px; flex-wrap: wrap; justify-content: center; }
@@ -204,7 +204,7 @@ h1, h2, h3 { margin: 0; }
 .ad-date .dow { font-size: 12px; color: var(--muted); font-weight: 700; }
 .ad-date .d { font: 400 34px/1 var(--serif); color: var(--navy); }
 .ad-date .m { font-size: 13px; color: var(--muted); }
-.ad-date.today .d { color: var(--red); }
+.ad-date.today .d { display: inline-block; background: var(--gold); border-radius: 8px; padding: 2px 8px 4px; margin-left: -8px; }
 .ad-date .tt { display: inline-block; margin-top: 6px; }
 .month-sep { font: 400 24px/1.2 var(--serif); color: var(--navy); padding: 22px 0 6px; border-bottom: 2px solid var(--gold); }
 .month-sep:first-child { padding-top: 0; }
@@ -228,7 +228,7 @@ h1, h2, h3 { margin: 0; }
 .week-col-head { padding: 8px 10px; border-radius: var(--radius) var(--radius) 0 0; background: var(--card); border: 1px solid var(--line); border-bottom: 2px solid var(--gold); }
 .week-col-head .dow { font-size: 12px; color: var(--muted); font-weight: 700; }
 .week-col-head .d { font: 400 26px/1.1 var(--serif); color: var(--navy); }
-.week-col.today .week-col-head .d { color: var(--red); }
+.week-col.today .week-col-head { background: color-mix(in srgb, var(--gold) 40%, white); }
 .week-col-body { padding: 8px 0; }
 .week-col .card { padding: 8px 10px 8px 0; gap: 0 10px; }
 .week-col .card-title { font-size: 14px; }
