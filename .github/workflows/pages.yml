@@ -1,5 +1,5 @@
 # Builds the calendar from the live SOCS feed and publishes it to GitHub Pages.
-# Runs on every push to main, every hour (at 17 minutes past) to pick up calendar changes,
+# Runs on every push to main, every 30 minutes (at 17 and 47 minutes past) to pick up calendar changes,
 # and on demand from the Actions tab. If the feed can't be fetched the build
 # fails and the previously published site stays up.
 name: Build and deploy calendar
@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '17 * * * *'
+    - cron: '17,47 * * * *'
   workflow_dispatch:
 
 permissions:
