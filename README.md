@@ -32,7 +32,7 @@ The build also reads SOCS's staff page (`calendar.misocs.com/staff/week.aspx?ID=
 
 ## Staff view
 
-`/staff/` (for example `https://mayfield-school.github.io/CalendarSite/staff/`) works like SOCS's own `/staff` page. It is the same calendar plus a **Staff only** group: Staff Events, Governor Meetings, Report Deadlines, Lettings and Non-School Functions, each shown only when it has upcoming events. The "Staff" option (the default here) includes them but leaves out sports fixtures and co-curricular ECA sessions; "Everything" includes those too. The Parents and Pupils options leave the staff categories out. The staff view has its own subscription feeds and print page, and it isn't linked from the public page or indexed by search engines.
+`/staff/` (for example `https://mayfield-school.github.io/CalendarSite/staff/`) works like SOCS's own `/staff` page. It is the same calendar plus a **Staff only** group: Staff Events, Governor Meetings, Report Deadlines, Lettings and Non-School Functions, each shown only when it has upcoming events. The "Staff" option (the default here) includes them but leaves out sports fixtures; "Everything" includes those too. The Parents and Pupils options leave the staff categories out. The staff view has its own subscription feeds and print page, and it isn't linked from the public page or indexed by search engines.
 
 SOCS's subscription feed leaves out staff-only events, so the build reads them from the event data SOCS's own staff page loads (`calendar.misocs.com/staff/CalendarEventHandler.ashx`), covering a year back to two years ahead. Only events in the five staff categories are taken from it; the daily co-curricular sessions that page also lists are left out. If that data can't be read, the build falls back to the feed's staff categories (which only has staff events that are also public) and logs a warning. Like SOCS's own `/staff` page, the staff view is unlisted rather than password-protected: anyone who knows the address can open it.
 
@@ -66,5 +66,5 @@ Note that GitHub pauses scheduled workflows in a public repository after 60 days
 
 ## Customising
 
-- Category colours, groups, labels and audience presets are in [lib/categories.js](lib/categories.js). If SOCS adds a new category, it appears automatically under "Other" and gets its own feed. If SOCS adds a new staff-only (starred) category, the staff view picks it up automatically under "Other". Add it to that file with `staff: true` to put it in the "Staff only" group and keep it out of the Parents and Pupils presets.
+- Category colours, headings and audience presets are in [lib/categories.js](lib/categories.js). Category names are shown exactly as in SOCS, A-Z under each heading. If SOCS adds a new category, it appears automatically under "Other" and gets its own feed. If SOCS adds a new staff-only (starred) category, the staff view picks it up automatically under "Other". Add it to that file with `staff: true` to put it in the "Staff only" group and keep it out of the Parents and Pupils presets.
 - Brand colours and fonts are CSS variables at the top of [public/styles.css](public/styles.css).

@@ -129,24 +129,16 @@ test('SOCS feed URL for any mix of categories', () => {
   assert.equal(s('c=other-sport'), null);
 });
 
-test('the Staff preset leaves out sport (including sports SOCS adds later) and co-curricular; Everything keeps them', () => {
+test('the Staff preset leaves out sport (including sports SOCS adds later); Everything keeps it', () => {
   const categories = buildCategoryMeta(new Set(['Lacrosse', 'Trips']), new Map(), { staff: true });
   const meta = { categories, presets: PRESETS, defaultPreset: DEFAULT_PRESET };
   const staff = parseFilter(new URLSearchParams('p=staff'), meta).cats;
   const all = parseFilter(new URLSearchParams('p=everything'), meta).cats;
-  for (const slug of ['hockey', 'other-sport', 'lacrosse', 'co-curricular']) {
+  for (const slug of ['hockey', 'other-sport', 'lacrosse']) {
     assert.ok(!staff.has(slug), slug);
     assert.ok(all.has(slug), slug);
   }
   for (const slug of ['trips', 'school-holidays', 'staff-events', 'timetable']) assert.ok(staff.has(slug), slug);
-});
-
-test('ECA sessions move from Trips to Co-curricular', () => {
-  const ev = (summary, cats) => normaliseEvent(parseIcs(`BEGIN:VCALENDAR\nBEGIN:VEVENT\nUID:1-2-SOCS-SchoolCalendar-1@SOCS\nDTSTART:20261020T160000\nSUMMARY:${summary}\nCATEGORIES:${cats}\nEND:VEVENT\nEND:VCALENDAR`)[0]);
-  assert.deepEqual(ev('ECA Riding - Hurstwood Equestrian - Group 1', 'Trips').cats, ['Co-curricular']);
-  assert.deepEqual(ev('ECA Drama', 'Trips, Dance Drama & Music').cats, ['Co-curricular', 'Dance Drama & Music']);
-  assert.deepEqual(ev('Geography Field Trip', 'Trips').cats, ['Trips']);
-  assert.deepEqual(ev('Decathlon visit', 'Trips').cats, ['Trips']);
 });
 
 test('rows from SOCS staff page data become events', () => {
@@ -158,4 +150,17 @@ test('rows from SOCS staff page data become events', () => {
   const noEnd = normaliseSocsRow({ OrigEventID: '2', StartDate: '5 Oct 2026', EndDate: '5 Oct 2026', StartTime: '14:00', EndTime: '', Title: 'Y11 Autumn Report &amp; Grade Card' }, ['Report Deadlines']);
   assert.deepEqual([noEnd.et, noEnd.title, noEnd.years], [null, 'Y11 Autumn Report & Grade Card', [11]]);
   assert.equal(normaliseSocsRow({ OrigEventID: '3', StartDate: 'soon', Title: 'x' }, []), null);
+});
+
+test('categories keep their SOCS names, A-Z within each heading', () => {
+  const cats = buildCategoryMeta(new Set(['Lacrosse', 'Zumba']), new Map(), { staff: true });
+  for (const name of ['Alumni', 'Careers and Higher Education', 'Health Centre / Vaccinations', 'Marketing & Admissions Events', 'Timetable']) {
+    assert.equal(cats.find((c) => c.name === name).label, name);
+  }
+  const inGroup = (g) => cats.filter((c) => c.group === g).map((c) => c.name);
+  assert.deepEqual(inGroup('key'), ['Examinations', 'Marketing & Admissions Events', 'Parents Meetings', 'School Holidays']);
+  assert.deepEqual(inGroup('sport'), ['Athletics', 'Cricket', 'Football', 'Hockey', 'Lacrosse', 'Netball', 'Tennis', 'Other sport']);
+  assert.deepEqual(inGroup('staff'), ['Governor Meetings', 'Lettings', 'Non-School Functions', 'Report Deadlines', 'Staff Events']);
+  assert.deepEqual(inGroup('other'), ['Zumba']);
+  assert.ok(!cats.some((c) => c.name === 'Co-curricular'));
 });
