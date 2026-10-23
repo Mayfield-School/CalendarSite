@@ -14,7 +14,8 @@ export function parseFilter(params, meta) {
     (get('c') ? null : meta.presets.find((p) => p.id === meta.defaultPreset));
   const cats = preset
     ? presetCats(preset, meta.categories)
-    : new Set(get('c') === 'all' ? meta.categories.map((c) => c.slug) : get('c').split(',').filter(Boolean));
+    : new Set(get('c') === 'all' ? meta.categories.map((c) => c.slug)
+      : get('c') === 'none' ? [] : get('c').split(',').filter(Boolean));
   const years = new Set(get('y').split(',').map(Number).filter((n) => n >= 7 && n <= 13));
   return { cats, years, q: get('q').trim().slice(0, 100) };
 }
@@ -31,6 +32,7 @@ export function encodeFilter(f, meta) {
   const preset = meta.presets.find((pr) => sameSet(presetCats(pr, meta.categories), f.cats));
   if (preset) p.set('p', preset.id);
   else if (f.cats.size === meta.categories.length) p.set('c', 'all');
+  else if (!f.cats.size) p.set('c', 'none');
   else p.set('c', [...f.cats].join(','));
   if (f.years.size) p.set('y', [...f.years].sort((a, b) => a - b).join(','));
   if (f.q) p.set('q', f.q);
@@ -52,9 +54,10 @@ export function makeMatcher(f, meta) {
 export function describeFilter(f, meta) {
   const preset = meta.presets.find((pr) => sameSet(presetCats(pr, meta.categories), f.cats));
   const labels = meta.categories.filter((c) => f.cats.has(c.slug)).map((c) => c.label);
-  const named = labels.length <= 3 && labels.length
-    ? labels.length === 1 ? labels[0] : `${labels.slice(0, -1).join(', ')} & ${labels.at(-1)}`
-    : `${f.cats.size} of ${meta.categories.length} categories`;
+  const named = !f.cats.size ? 'No categories'
+    : labels.length <= 3 && labels.length
+      ? labels.length === 1 ? labels[0] : `${labels.slice(0, -1).join(', ')} & ${labels.at(-1)}`
+      : `${f.cats.size} of ${meta.categories.length} categories`;
   const parts = [preset ? preset.name : named];
   if (f.years.size) parts.push(`Year${f.years.size > 1 ? 's' : ''} ${[...f.years].sort((a, b) => a - b).join(', ')}`);
   if (f.q) parts.push(`“${f.q}”`);

@@ -28,7 +28,8 @@ async function init() {
   if (staff) filterParams.set('staff', '1');
   const colors = new Map(categories.map((c) => [c.name, c]));
 
-  const { title, body } = renderPrintPage(data.events.filter(match), resolveOptions(params), {
+  const events = data.events.filter(match);
+  const ctx = {
     school: data.calendarName,
     subtitle: `${data.calendarName} Calendar`,
     filterLabel: describeFilter(filter, meta),
@@ -36,10 +37,22 @@ async function init() {
     homeHref,
     colorOf: (ev) => (colors.get(ev.cats.find((c) => filter.cats.has(colors.get(c)?.slug)) || ev.cats[0]) || {}).color || '#013568',
     printed: new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()),
-  });
-  document.title = title;
-  document.body.innerHTML = body;
-  document.getElementById('print-btn').addEventListener('click', () => window.print());
+  };
+
+  const render = (p, focusName) => {
+    const { title, body } = renderPrintPage(events, resolveOptions(p), ctx);
+    document.title = title;
+    document.body.innerHTML = body;
+    document.getElementById('print-btn').addEventListener('click', () => window.print());
+    // Ticking a box applies straight away, without the Update button.
+    document.querySelectorAll('.controls input[type="checkbox"]').forEach((box) => box.addEventListener('change', () => {
+      const next = new URLSearchParams(new FormData(box.form));
+      history.replaceState(null, '', `?${next}`);
+      render(next, box.name);
+    }));
+    if (focusName) document.querySelector(`.controls input[name="${focusName}"]`)?.focus();
+  };
+  render(params);
 }
 
 init();

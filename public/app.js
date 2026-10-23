@@ -503,6 +503,7 @@ function bind() {
     if (t.dataset.share) { const ev = S.byId.get(t.dataset.share); return navigator.share({ title: displayTitle(ev), text: whenLong(ev), url: shareUrl(ev) }).catch(() => {}); }
     if (t.dataset.view) return setView(t.dataset.view);
     if (t.dataset.action === 'reset') return resetFilters();
+    if (t.dataset.action === 'clear-cats') { S.filter.cats.clear(); return filtersChanged(); }
     if (t.dataset.action === 'more') { S.listDays += 60; return renderList(); }
     if (t.dataset.preset) { S.filter.cats = presetCats(S.meta.presets.find((p) => p.id === t.dataset.preset), S.meta.categories); return filtersChanged(); }
     if (t.dataset.year) {
