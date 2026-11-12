@@ -44,6 +44,11 @@ h1, h2, h3 { margin: 0; }
 .header-links a { color: var(--cream); text-decoration: none; font-size: 14px; white-space: nowrap; }
 .header-links a:hover { color: var(--gold); }
 @media (max-width: 480px) { .header-links a { font-size: 13px; } }
+.header-links { align-items: center; }
+.header-links .powered-by { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; opacity: .7; transition: opacity .15s; }
+.header-links .powered-by:hover, .header-links .powered-by:focus-visible { opacity: 1; color: var(--cream); }
+.powered-by img { height: 20px; width: auto; display: block; }
+@media (max-width: 560px) { .powered-by-text { display: none; } .header-links { gap: 14px; } }
 
 .hero { background: linear-gradient(180deg, var(--navy) 0%, var(--navy-700) 100%); color: var(--cream); padding: 34px 0 30px; }
 .eyebrow { margin: 0 0 4px; color: var(--gold); font-size: 13px; font-weight: 700; }
