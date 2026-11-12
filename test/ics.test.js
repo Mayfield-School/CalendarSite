@@ -2,7 +2,20 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseIcs, normaliseEvent, normaliseSocsRow, buildIcs, extractYears } from '../lib/ics.js';
 import { buildCategoryMeta, GROUPS, PRESETS, DEFAULT_PRESET } from '../lib/categories.js';
-import { parseFilter, encodeFilter, makeMatcher, feedPath, socsFeed } from '../public/filter.js';
+import { parseFilter, encodeFilter, makeMatcher, feedPath, socsFeed, packEvents, unpackEvents } from '../public/filter.js';
+
+test('packed calendar events unpack to the original', () => {
+  const tpl = 'https://socs.example/EventDetails.aspx?ID=1&EID={id}';
+  const events = [
+    { id: '42', title: 'Open Day', s: '2026-11-01', e: '2026-11-01', st: '09:00', et: null, allDay: false, location: null, cats: ['Events'], years: [], url: 'https://socs.example/EventDetails.aspx?ID=1&EID=42' },
+    { id: 's7', title: 'Governors', s: '2026-11-02', e: '2026-11-02', st: null, et: null, allDay: true, location: 'Library', cats: ['Governor Meetings'], years: [12, 13], url: null },
+    { id: '43', title: 'Odd link', s: '2026-11-03', e: '2026-11-03', st: null, et: null, allDay: true, location: null, cats: ['Events'], years: [], url: 'https://elsewhere.example/43' },
+  ];
+  const packed = packEvents(structuredClone(events), tpl);
+  assert.deepEqual(packed[0], { id: '42', title: 'Open Day', s: '2026-11-01', e: '2026-11-01', st: '09:00', cats: ['Events'] });
+  assert.equal(packed[1].url, null);
+  assert.deepEqual(unpackEvents(JSON.parse(JSON.stringify(packed)), tpl), events);
+});
 
 const FEED = `BEGIN:VCALENDAR
 VERSION:2.0

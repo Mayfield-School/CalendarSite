@@ -1,6 +1,6 @@
 // Print page: builds the printable calendar in the browser from the same
 // filter (p/c/y/q) and print options (start, end, per_cell, ...) the URL carries.
-import { parseFilter, encodeFilter, makeMatcher, describeFilter } from './filter.js';
+import { parseFilter, encodeFilter, makeMatcher, describeFilter, unpackEvents } from './filter.js';
 import { resolveOptions, renderPrintPage } from './print-layout.js';
 
 async function init() {
@@ -13,6 +13,7 @@ async function init() {
     const res = await fetch(staff ? 'api/calendar-staff.json' : 'api/calendar.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
+    unpackEvents(data.events, data.eventUrl);
   } catch {
     document.querySelector('.none').textContent = 'The calendar couldn’t be loaded. Please try again in a moment.';
     return;

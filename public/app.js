@@ -1,4 +1,4 @@
-import { parseFilter, encodeFilter, makeMatcher, describeFilter, presetCats, sameSet, feedPath, socsFeed } from './filter.js';
+import { parseFilter, encodeFilter, makeMatcher, describeFilter, presetCats, sameSet, feedPath, socsFeed, unpackEvents } from './filter.js';
 
 // The staff view (/staff/) is this page with data-view="staff"; it loads data that includes the staff-only categories.
 const STAFF = document.documentElement.dataset.view === 'staff';
@@ -576,6 +576,7 @@ async function init() {
     const res = await fetch(STAFF ? 'api/calendar-staff.json' : 'api/calendar.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     S.data = await res.json();
+    unpackEvents(S.data.events, S.data.eventUrl);
   } catch {
     $('#view').innerHTML = '<div class="empty-state"><h3>The calendar couldn’t be loaded</h3><p>Please try again in a moment, or use the <a href="https://calendar.misocs.com/week.aspx?ID=3405">original school calendar</a>.</p></div>';
     return;

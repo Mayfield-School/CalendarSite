@@ -77,6 +77,32 @@ export function feedPath(f, meta) {
   return null;
 }
 
+// The calendar JSON leaves out what the browser can work out, to keep the download small:
+// empty fields (null, false, []) and SOCS links that follow the usual pattern, rebuilt from
+// `eventUrl` ("…EID={id}…"). A link that differs, or is null, is kept as it is.
+export function packEvents(events, eventUrl) {
+  return events.map((ev) => {
+    const out = {};
+    for (const [k, v] of Object.entries(ev)) {
+      if (k === 'url') { if (!eventUrl || v !== eventUrl.replace('{id}', ev.id)) out.url = v; }
+      else if (v !== null && v !== false && !(Array.isArray(v) && !v.length)) out[k] = v;
+    }
+    return out;
+  });
+}
+
+export function unpackEvents(events, eventUrl) {
+  for (const ev of events) {
+    ev.years ??= [];
+    ev.allDay ??= false;
+    ev.st ??= null;
+    ev.et ??= null;
+    ev.location ??= null;
+    if (!('url' in ev)) ev.url = eventUrl ? eventUrl.replace('{id}', ev.id) : null;
+  }
+  return events;
+}
+
 // Any mix of categories can come straight from SOCS, whose feed URL takes one
 // "C1=<id>" per calendar and "sid=<id>" per sport (or "AS=1" for all sports).
 // SOCS can't filter by year group or search text, and some categories (such

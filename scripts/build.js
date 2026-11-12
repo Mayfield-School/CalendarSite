@@ -19,7 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseIcs, normaliseEvent, normaliseSocsRow, buildIcs } from '../lib/ics.js';
 import { GROUPS, PRESETS, DEFAULT_PRESET, buildCategoryMeta } from '../lib/categories.js';
-import { presetCats, makeMatcher, describeFilter, feedPath } from '../public/filter.js';
+import { presetCats, makeMatcher, describeFilter, feedPath, packEvents } from '../public/filter.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'dist');
@@ -35,7 +35,10 @@ const STAFF_PAGE_URL = process.env.STAFF_PAGE_URL || 'https://calendar.misocs.co
 const STAFF_EVENTS_URL = process.env.STAFF_EVENTS_URL || 'https://calendar.misocs.com/staff/CalendarEventHandler.ashx?V=2&ID=3405';
 // Always https: GitHub reports http:// for a custom domain while its certificate is still being issued.
 const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/$/, '').replace(/^http:\/\//, 'https://');
-const CALENDAR_NAME = process.env.CALENDAR_NAME || 'Mayfield School';
+// SOCS's event details page; the calendar JSON leaves out links that match it (see packEvents).
+const SCHOOL_ID = new URL(FEED_URL).searchParams.get('ID');
+const EVENT_URL = SCHOOL_ID ? `https://calendar.misocs.com/EventDetails.aspx?ID=${SCHOOL_ID}&EID={id}&T=SchoolCalendar&P=1` : null;
+const CALENDAR_NAME =process.env.CALENDAR_NAME || 'Mayfield School';
 const YEARS = [7, 8, 9, 10, 11, 12, 13];
 
 async function get(url, headers = {}) {
@@ -158,7 +161,8 @@ async function writeView(list, { staff }) {
     groups: GROUPS, presets: PRESETS, defaultPreset: staff ? 'staff' : DEFAULT_PRESET, feedPrefix: prefix,
   };
   await write(`api/calendar${staff ? '-staff' : ''}.json`, JSON.stringify({
-    fetchedAt: new Date().toISOString(), calendarName: name, publicUrl: PUBLIC_URL || null, socsFeedUrl: SOCS_BASE, ...meta, events: list,
+    fetchedAt: new Date().toISOString(), calendarName: name, publicUrl: PUBLIC_URL || null, socsFeedUrl: SOCS_BASE, ...meta,
+    eventUrl: EVENT_URL, events: packEvents(list, EVENT_URL),
   }));
 
   // Subscription feeds. Each is named by feedPath() so the browser links to the right one.
