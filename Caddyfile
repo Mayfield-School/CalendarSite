@@ -1,0 +1,49 @@
+# Serves the built site inside its container (Dockerfile, target "web"). The front server adds https.
+# It answers as GitHub Pages does: the same addresses, the same cache time, and 404.html for the rest.
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+:8080 {
+	root * /site/current
+
+	header {
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# As GitHub Pages sends: other sites may read the calendar's files.
+		Access-Control-Allow-Origin "*"
+		Cache-Control "max-age=600"
+		-Server
+	}
+
+	@calendar path *.ics *.ashx
+	header @calendar >Content-Type "text/calendar; charset=utf-8"
+
+	@health path /health.json
+	header @health Cache-Control "no-store"
+
+	@method not method GET HEAD
+	respond @method 405
+
+	try_files {path} {path}/ {path}.html
+	file_server {
+		hide .*
+	}
+
+	handle_errors 404 {
+		header {
+			>Content-Type "text/html; charset=utf-8"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Cache-Control "max-age=600"
+			-Server
+		}
+		rewrite * /404.html
+		file_server
+	}
+	handle_errors {
+		respond "{err.status_code}"
+	}
+}

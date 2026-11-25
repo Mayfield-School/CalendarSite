@@ -22,7 +22,11 @@ import { GROUPS, PRESETS, DEFAULT_PRESET, buildCategoryMeta } from '../lib/categ
 import { presetCats, makeMatcher, describeFilter, feedPath, packEvents } from '../public/filter.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = path.join(ROOT, 'dist');
+// scripts/publish.js builds into a new folder each time, so the live copy is never half written.
+const OUT = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(ROOT, 'dist');
+// STRICT=1: fail instead of publishing without the staff categories or events. Only for where the
+// last good copy stays up by itself (scripts/publish.js).
+const STRICT = process.env.STRICT === '1';
 // SOCS's own hostnames, not calendar.mayfieldgirls.org, so the build (and the
 // SOCS feed links it gives out) keep working if that name is pointed at this site.
 const FEED_URL = process.env.FEED_URL ||
@@ -85,7 +89,7 @@ let socs = new Map();
 const staffEvents = structuredClone(events);
 if (!process.env.FEED_FILE) {
   // If SOCS changes its page, keep publishing without staff categories rather than freezing the calendar.
-  try { socs = await socsCategories(); } catch (err) { console.log(`::warning::Staff categories skipped: ${err.message}`); }
+  try { socs = await socsCategories(); } catch (err) { if (STRICT) throw err; console.log(`::warning::Staff categories skipped: ${err.message}`); }
   const byId = new Map(staffEvents.map((ev) => [ev.id, ev]));
   const tag = (ev, name) => { if (!ev.cats.includes(name)) ev.cats.push(name); };
   try {
@@ -106,6 +110,7 @@ if (!process.env.FEED_FILE) {
     }
     console.log(`Staff page: ${added} staff-only events added.`);
   } catch (err) {
+    if (STRICT) throw err;
     // Fall back to SOCS's feed filtered to each staff category, which only has the staff events that are also public.
     console.log(`::warning::Staff page events unavailable (${err.message}); using the feed's staff categories only.`);
     for (const [name, { param, staff }] of socs) {
@@ -208,4 +213,6 @@ const sitePath = PUBLIC_URL ? new URL(`${PUBLIC_URL}/`).pathname : '/';
 await write('404.html', (await readFile(path.join(OUT, '404.html'), 'utf8')).replaceAll('{{BASE}}', sitePath).replaceAll('{{V}}', version));
 
 const staffOnly = staffEvents.filter((ev) => ev.cats.some((c) => socs.get(c)?.staff)).length;
-console.log(`Built dist/ with ${events.length} events (${staffOnly} with staff categories), ${feedCount} feeds${PUBLIC_URL ? ` for ${PUBLIC_URL}` : ''}.`);
+// How old this copy is, and the counts publish.js compares with the next build's. No event details.
+await write('health.json', JSON.stringify({ builtAt: new Date().toISOString(), events: events.length, staffEvents: staffEvents.length, staffOnly, feeds: feedCount }));
+console.log(`Built ${path.basename(OUT)}/ with ${events.length} events (${staffOnly} with staff categories), ${feedCount} feeds${PUBLIC_URL ? ` for ${PUBLIC_URL}` : ''}.`);
